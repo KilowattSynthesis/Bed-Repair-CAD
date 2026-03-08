@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import build123d as bd
+import build123d_ease as bde
 from build123d_ease import show
 from loguru import logger
 
@@ -10,7 +11,18 @@ from loguru import logger
 class Spec:
     """Specification for part1."""
 
-    part1_radius: float = 20
+    bolt_hole_d: float = 5.5
+
+    bolt_center_to_edge: float = 9.0
+
+    nominal_gap_between_panels: float = 3.0
+
+    panel_thickness: float = 2.5
+
+    thickness_on_top_of_panel: float = 1.5
+
+    length_along_gap: float = 30.0
+    length_out_from_gap: float = 10
 
     def __post_init__(self) -> None:
         """Post initialization checks."""
@@ -21,7 +33,31 @@ def part1(spec: Spec) -> bd.Part | bd.Compound:
     """Create a CAD model of part1."""
     p = bd.Part(None)
 
-    p += bd.Cylinder(radius=spec.part1_radius, height=20)
+    # Fill the gap.
+    p += bd.Box(
+        spec.length_along_gap,
+        spec.nominal_gap_between_panels,
+        spec.panel_thickness,
+        align=bde.align.ANCHOR_BOTTOM,
+    )
+
+    # Top part.
+    b = bd.Part() + bd.Box(
+        spec.length_along_gap,
+        2 * spec.length_out_from_gap,
+        spec.thickness_on_top_of_panel,
+        align=bde.align.ANCHOR_BOTTOM,
+    )
+    p += bd.Pos(Z=spec.panel_thickness) * b.fillet(
+        radius=3, edge_list=b.edges().filter_by(bd.Axis.Z)
+    )
+
+    p -= bd.Pos(
+        X=(spec.length_along_gap / 2 - spec.bolt_center_to_edge)
+    ) * bd.Cylinder(
+        radius=spec.bolt_hole_d / 2,
+        height=20,
+    )
 
     return p
 
