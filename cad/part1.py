@@ -13,15 +13,15 @@ class Spec:
 
     bolt_hole_d: float = 5.5
 
-    bolt_center_to_edge: float = 9.0
+    bolt_center_to_edge: float = 14.0
 
     nominal_gap_between_panels: float = 3.0
 
-    panel_thickness: float = 2.5
+    panel_thickness: float = 1.8
 
     thickness_on_top_of_panel: float = 1.5
 
-    length_along_gap: float = 30.0
+    length_along_gap: float = 40.0
     length_out_from_gap: float = 10
 
     def __post_init__(self) -> None:
